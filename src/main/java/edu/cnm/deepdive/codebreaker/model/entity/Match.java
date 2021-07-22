@@ -1,8 +1,9 @@
 package edu.cnm.deepdive.codebreaker.model.entity;
 
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
@@ -11,7 +12,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -22,6 +25,7 @@ import org.springframework.lang.NonNull;
 @SuppressWarnings("JpaDataSourceORMInspection")
 @Entity
 @Table(
+    name = "codebreaker_match",
     indexes = {
         @Index(columnList = "codeLength, pool"),
         @Index(columnList = "codesToGenerate"),
@@ -66,11 +70,14 @@ public class Match {
   @NonNull
   private Criterion criterion;
 
-  @ManyToOne(fetch = FetchType.EAGER, optional = false,
-      cascade = {CascadeType.REFRESH, CascadeType.DETACH, CascadeType.MERGE})
+  @ManyToOne(fetch = FetchType.EAGER, optional = false)
   @JoinColumn(name = "originator_id", nullable = false, updatable = false)
   @NonNull
   private User originator;
+
+  @ManyToMany(fetch = FetchType.LAZY, mappedBy = "matchesParticipating")
+  @OrderBy("displayName ASC")
+  private final List<User> participants = new LinkedList<>();
 
   @NonNull
   public UUID getId() {
@@ -132,6 +139,10 @@ public class Match {
 
   public void setOriginator(@NonNull User originator) {
     this.originator = originator;
+  }
+
+  public List<User> getParticipants() {
+    return participants;
   }
 
   public enum Criterion {
