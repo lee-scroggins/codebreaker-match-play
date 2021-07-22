@@ -1,0 +1,20 @@
+Server:
+  error:
+    include-message: always
+  forward-headers-strategy: native
+  port: 8082
+  servlet:
+    context-path: /codebreaker
+
+
+spring:
+  jackson:
+    deserialization:
+      accept-float-as-int: false
+  datasource:
+    url: jdbc:derby:codebreaker-db;create=true;collation=TERRITORY_BASED:PRIMARY
+  jpa:
+    database-platform: org.hibernate.dialect.DerbyTenSevenDialect
+    hibernate:
+      ddl-auto: update
+      
