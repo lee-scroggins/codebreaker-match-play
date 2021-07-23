@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
@@ -14,6 +15,7 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -77,7 +79,13 @@ public class Match {
 
   @ManyToMany(fetch = FetchType.LAZY, mappedBy = "matchesParticipating")
   @OrderBy("displayName ASC")
+  @NonNull
   private final List<User> participants = new LinkedList<>();
+
+  @OneToMany(mappedBy = "match", fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
+  @OrderBy("created ASC")
+  @NonNull
+  private final List<Code> codes = new LinkedList<>();
 
   @NonNull
   public UUID getId() {
@@ -141,8 +149,14 @@ public class Match {
     this.originator = originator;
   }
 
+  @NonNull
   public List<User> getParticipants() {
     return participants;
+  }
+
+  @NonNull
+  public List<Code> getCodes() {
+    return codes;
   }
 
   public enum Criterion {
