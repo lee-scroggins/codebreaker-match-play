@@ -31,4 +31,6 @@ public interface MatchRepository extends JpaRepository<Match, UUID> {
   findAllByParticipantsNotContainsAndEndingAfterAndCodeLengthAndPoolSizeOrderByEndingAsc(
       User participant, Date cutoff, int codeLength, int poolSize);
 
+  // etc.
+
 }

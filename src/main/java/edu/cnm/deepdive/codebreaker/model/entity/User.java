@@ -58,6 +58,7 @@ public class User {
 
   @Temporal(TemporalType.TIMESTAMP)
   @Column(nullable = false, updatable = true)
+  @NonNull
   private Date connected;
 
   @OneToMany(mappedBy = "originator", fetch = FetchType.LAZY,
@@ -120,11 +121,12 @@ public class User {
     this.inactive = inactive;
   }
 
+  @NonNull
   public Date getConnected() {
     return connected;
   }
 
-  public void setConnected(Date connected) {
+  public void setConnected(@NonNull Date connected) {
     this.connected = connected;
   }
 
