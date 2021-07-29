@@ -13,6 +13,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -81,7 +82,13 @@ public class Match {
   @NonNull
   private User originator;
 
-  @ManyToMany(fetch = FetchType.LAZY, mappedBy = "matchesParticipating")
+  @ManyToMany(fetch = FetchType.LAZY,
+      cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+  @JoinTable(
+      name = "user_match_participation",
+      joinColumns = {@JoinColumn(name = "match_id", nullable = false, updatable = false)},
+      inverseJoinColumns = {@JoinColumn(name = "user_id", nullable = false, updatable = false)}
+  )
   @OrderBy("displayName ASC")
   @NonNull
   private final List<User> participants = new LinkedList<>();

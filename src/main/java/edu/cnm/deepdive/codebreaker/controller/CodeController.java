@@ -1,9 +1,10 @@
 package edu.cnm.deepdive.codebreaker.controller;
 
-import edu.cnm.deepdive.codebreaker.model.entity.Match;
+import edu.cnm.deepdive.codebreaker.model.entity.Code;
 import edu.cnm.deepdive.codebreaker.model.entity.User;
-import edu.cnm.deepdive.codebreaker.service.MatchService;
+import edu.cnm.deepdive.codebreaker.service.CodeService;
 import java.net.URI;
+import java.util.Date;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
@@ -17,39 +18,39 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/matches")
-public class MatchController {
+@RequestMapping("/codes")
+public class CodeController {
 
-  private final MatchService service;
+  private final CodeService service;
 
   @Autowired
-  public MatchController(MatchService service) {
+  public CodeController(CodeService service) {
     this.service = service;
   }
 
   @PostMapping(
       consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<Match> post(@RequestBody Match match, Authentication auth) {
-    match = service.start(match, (User) auth.getPrincipal());
+  public ResponseEntity<Code> post(@RequestBody Code code, Authentication auth) {
+    code = service.start(code, (User) auth.getPrincipal());
     URI location = WebMvcLinkBuilder
         .linkTo(
             WebMvcLinkBuilder
-                .methodOn(MatchController.class)
-                .get(match.getId(), auth)
+                .methodOn(CodeController.class)
+                .get(code.getId(), auth)
         )
         .toUri();
-    return ResponseEntity.created(location).body(match);
+    return ResponseEntity.created(location).body(code);
   }
 
   @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public Match get(@PathVariable UUID id, Authentication auth) {
+  public Code get(@PathVariable UUID id, Authentication auth) {
     return service
-        .get(id)
+        .get(id, (User) auth.getPrincipal())
         .orElseThrow();
   }
 
