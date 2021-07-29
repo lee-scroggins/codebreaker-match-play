@@ -1,5 +1,6 @@
 package edu.cnm.deepdive.codebreaker.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,6 +48,7 @@ public class User {
 
   @Column(nullable = false, updatable = false, unique = true)
   @NonNull
+  @JsonIgnore
   private String oauthKey;
 
   @Column(nullable = false, unique = true)
@@ -59,12 +61,14 @@ public class User {
   @Temporal(TemporalType.TIMESTAMP)
   @Column(nullable = false, updatable = true)
   @NonNull
+  @JsonIgnore
   private Date connected;
 
   @OneToMany(mappedBy = "originator", fetch = FetchType.LAZY,
       cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
   @OrderBy("created DESC")
   @NonNull
+  @JsonIgnore
   private final List<Match> matchesOriginated = new LinkedList<>();
 
   @ManyToMany(fetch = FetchType.LAZY,
@@ -76,11 +80,13 @@ public class User {
   )
   @OrderBy("created DESC")
   @NonNull
+  @JsonIgnore
   private final List<Match> matchesParticipating = new LinkedList<>();
 
   @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
   @OrderBy("created DESC")
   @NonNull
+  @JsonIgnore
   private final List<Code> codes = new LinkedList<>();
 
   // TODO Consider whether adding the one-to-many for guesses makes sense here.

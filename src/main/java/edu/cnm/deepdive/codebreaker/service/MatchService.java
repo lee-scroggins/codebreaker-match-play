@@ -43,21 +43,27 @@ public class MatchService {
     return repository.findById(id);
   }
 
-  Stream<Match> getAvailableMatches(User user, Date cutoff, int codeLength, int poolSize) {
+  public Stream<Match> getAvailableMatches(User user, Date cutoff, int codeLength, int poolSize) {
     return repository
         .findAllByParticipantsNotContainsAndEndingAfterAndCodeLengthAndPoolSizeOrderByEndingAsc(
             user, cutoff, codeLength, poolSize
         );
   }
 
-  Stream<Match> getUserMatchesAfterCutoff(User user, Date cutoff) {
+  public Stream<Match> getUserMatchesAfterCutoff(User user, Date cutoff) {
     return repository.findAllByParticipantsContainsAndEndingAfterOrderByEndingAsc(user, cutoff);
   }
 
-  Stream<Match> getUserMatchesBeforeCutoff(User user, Date cutoff) {
+  public Stream<Match> getUserMatchesBeforeCutoff(User user, Date cutoff) {
     return repository.findAllByParticipantsContainsAndEndingBeforeOrderByEndingDesc(user, cutoff);
   }
 
-  // etc.
+
+  public void delete(UUID id, User user) {
+    repository
+        .findById(id)
+        .map((match) -> (match.getOriginator().getId().equals(user.getId())) ? match : null)
+        .ifPresent(repository::delete);
+  }
 
 }
