@@ -3,14 +3,17 @@ package edu.cnm.deepdive.codebreaker.controller;
 import edu.cnm.deepdive.codebreaker.model.entity.Guess;
 import edu.cnm.deepdive.codebreaker.model.entity.User;
 import edu.cnm.deepdive.codebreaker.service.CodeService;
+import java.net.URI;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,8 +36,27 @@ public class GuessController {
 
   @PostMapping(
       consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<Guess> post(@PathVariable UUID codeId, Guess guess, Authentication auth) {
-    // TODO Invoke method in codeService & return result as a ResponseEntity constructed from the Guess object.
+  public ResponseEntity<Guess> post(@PathVariable UUID codeId, @RequestBody Guess guess, Authentication auth) {
+    return codeService
+        .processGuess(codeId, guess, (User) auth.getPrincipal())
+        .map((updatedGuess) -> {
+          URI location = WebMvcLinkBuilder
+              .linkTo(
+                  WebMvcLinkBuilder
+                      .methodOn(GuessController.class)
+                      .get(codeId, updatedGuess.getId(), auth)
+              )
+              .toUri();
+          return ResponseEntity.created(location).body(updatedGuess);
+        })
+        .orElseThrow();
+  }
+
+  @GetMapping(value = "/{guessId}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public Guess get(@PathVariable UUID codeId, @PathVariable UUID guessId, Authentication auth) {
+    return codeService
+        .get(codeId, guessId, (User) auth.getPrincipal())
+        .orElseThrow();
   }
 
 }
