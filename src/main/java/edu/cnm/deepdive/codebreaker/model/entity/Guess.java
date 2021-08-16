@@ -50,8 +50,8 @@ public class Guess {
   @NonNull
   private Code code;
 
-  @ManyToOne(fetch = FetchType.LAZY, optional = true)
-  @JoinColumn(name = "user_id", nullable = true, updatable = false)
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "user_id", nullable = false, updatable = false)
   private User user;
 
   @NonNull
