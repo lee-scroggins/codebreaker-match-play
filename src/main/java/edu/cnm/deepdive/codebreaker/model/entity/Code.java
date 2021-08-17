@@ -1,6 +1,15 @@
 package edu.cnm.deepdive.codebreaker.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import java.nio.ByteBuffer;
+import java.util.Base64;
+import java.util.Base64.Encoder;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,7 +33,12 @@ import org.springframework.lang.NonNull;
 
 @SuppressWarnings("JpaDataSourceORMInspection")
 @Entity
+@JsonPropertyOrder({"id", "created", "pool", "length"})
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(Include.NON_NULL)
 public class Code {
+
+  private static final Encoder ENCODER = Base64.getUrlEncoder().withoutPadding();
 
   @Id
   @GeneratedValue(generator = "uuid2")
@@ -34,7 +48,13 @@ public class Code {
       columnDefinition = "CHAR(16) FOR BIT DATA"
   )
   @NonNull
+  @JsonIgnore
   private UUID id;
+
+  @Column(name = "rest_key", unique = true)
+  @NonNull
+  @JsonProperty(value = "id", access = Access.READ_ONLY)
+  private String key;
 
   @CreationTimestamp
   @Temporal(TemporalType.TIMESTAMP)
@@ -50,12 +70,14 @@ public class Code {
   private String pool;
 
   @Column(nullable = false, updatable = false)
+  @JsonIgnore
   private int poolSize;
 
   @Column(name = "code_text", nullable = false, updatable = false)
+  @JsonIgnore
   private String text;
 
-  @ManyToOne(fetch = FetchType.LAZY, optional = true)
+  @ManyToOne(fetch = FetchType.EAGER, optional = true)
   @JoinColumn(name = "match_id", nullable = true, updatable = false)
   @JsonIgnore
   private Match match;
@@ -74,6 +96,11 @@ public class Code {
   @NonNull
   public UUID getId() {
     return id;
+  }
+
+  @NonNull
+  public String getKey() {
+    return key;
   }
 
   @NonNull
@@ -131,11 +158,29 @@ public class Code {
     return guesses;
   }
 
+  @JsonProperty(value = "text", access = Access.READ_ONLY)
+  public String getSecretText() {
+    String text = null;
+    if (match == null
+        && guesses.stream().anyMatch((guess) -> guess.getExactMatches() == length)) {
+      text = this.text;
+    } else if (match != null
+        && match.getEnding().compareTo(new Date()) <= 0) {
+      text = this.text;
+    }
+    return text;
+  }
+
   @PrePersist
-  private void updatePoolSize() {
+  private void setAdditionalFields() {
     poolSize = (int) pool
         .codePoints()
         .count();
+    UUID uuid = UUID.randomUUID();
+    ByteBuffer buffer = ByteBuffer.wrap(new byte[16]);
+    buffer.putLong(uuid.getMostSignificantBits());
+    buffer.putLong(uuid.getLeastSignificantBits());
+    key = ENCODER.encodeToString(buffer.array());
   }
 
 }

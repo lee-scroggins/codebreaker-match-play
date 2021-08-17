@@ -9,4 +9,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
   Optional<User> findByOauthKey(String oauthKey);
 
+  Optional<User> findByKey(String key);
+
 }

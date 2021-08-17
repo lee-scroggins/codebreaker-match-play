@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,18 +50,18 @@ public class CodeService {
     return codeRepository.save(code);
   }
 
-  public Optional<Code> get(UUID id, User user) {
+  public Optional<Code> get(String key, User user) {
     return codeRepository
-        .findById(id)
+        .findByKey(key)
         .map((code) -> (code.getMatch() != null || code.getUser().getId().equals(user.getId()))
             ? code
             : null
         );
   }
 
-  public void delete(UUID id, User user) {
+  public void delete(String key, User user) {
     codeRepository
-        .findById(id)
+        .findByKey(key)
         .map((code) -> (code.getMatch() == null && code.getUser().getId().equals(user.getId()))
             ? code
             : null
@@ -82,9 +81,9 @@ public class CodeService {
     return codeRepository.findAllByUserAndNotSolvedOrderByCreatedAsc(user);
   }
 
-  public Iterable<Guess> getGuesses(UUID codeId, User user) {
+  public Iterable<Guess> getGuesses(String key, User user) {
     return codeRepository
-        .findById(codeId)
+        .findByKey(key)
         .map((code) -> (code.getMatch() != null || code.getUser().getId().equals(user.getId()))
             ? code
             : null
@@ -99,9 +98,9 @@ public class CodeService {
         .orElseThrow();
   }
 
-  public Optional<Guess> processGuess(UUID codeId, Guess guess, User user) {
+  public Optional<Guess> processGuess(String key, Guess guess, User user) {
     return codeRepository
-        .findById(codeId)
+        .findByKey(key)
         .map((code) -> (code.getMatch() != null || code.getUser().getId().equals(user.getId()))
             ? code
             : null
@@ -112,10 +111,10 @@ public class CodeService {
         .map(guessRepository::save);
   }
 
-  public Optional<Guess> get(UUID codeId, UUID guessId, User user) {
+  public Optional<Guess> get(String codeKey, String guessKey, User user) {
     return guessRepository
-        .findById(guessId)
-        .map((guess) -> (guess.getCode().getId().equals(codeId)
+        .findByKey(guessKey)
+        .map((guess) -> (guess.getCode().getKey().equals(codeKey)
             && guess.getUser().getId().equals(user.getId()))
             ? guess
             : null

@@ -39,23 +39,23 @@ public class CodeController {
         .linkTo(
             WebMvcLinkBuilder
                 .methodOn(CodeController.class)
-                .get(code.getId(), auth)
+                .get(code.getKey(), auth)
         )
         .toUri();
     return ResponseEntity.created(location).body(code);
   }
 
-  @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public Code get(@PathVariable UUID id, Authentication auth) {
+  @GetMapping(value = "/{key}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public Code get(@PathVariable String key, Authentication auth) {
     return service
-        .get(id, (User) auth.getPrincipal())
+        .get(key, (User) auth.getPrincipal())
         .orElseThrow();
   }
 
-  @DeleteMapping(value = "/{id}")
+  @DeleteMapping(value = "/{key}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void delete(@PathVariable UUID id, Authentication auth) {
-    service.delete(id, (User) auth.getPrincipal());
+  public void delete(@PathVariable String key, Authentication auth) {
+    service.delete(key, (User) auth.getPrincipal());
   }
 
 }

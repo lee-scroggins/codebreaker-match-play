@@ -47,6 +47,10 @@ public class MatchService {
     return repository.findById(id);
   }
 
+  public Optional<Match> get(String key) {
+    return repository.findByKey(key);
+  }
+
   public Stream<Match> getAvailableMatches(User user, Date cutoff, int codeLength, int poolSize) {
     return repository
         .findAllByParticipantsNotContainsAndEndingAfterAndCodeLengthAndPoolSizeOrderByEndingAsc(
@@ -63,9 +67,9 @@ public class MatchService {
   }
 
 
-  public void delete(UUID id, User user) {
+  public void delete(String key, User user) {
     repository
-        .findById(id)
+        .findByKey(key)
         .map((match) -> (match.getOriginator().getId().equals(user.getId())) ? match : null)
         .ifPresent(repository::delete);
   }

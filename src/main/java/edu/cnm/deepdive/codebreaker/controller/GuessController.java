@@ -18,11 +18,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/codes/{codeId}/guesses")
+@RequestMapping("/codes/{codeKey}/guesses")
 public class GuessController {
 
   private final CodeService codeService;
-  // TODO Declare a GuessService field.
 
   @Autowired
   public GuessController(CodeService codeService) {
@@ -30,21 +29,22 @@ public class GuessController {
   }
 
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-  public Iterable<Guess> get(@PathVariable UUID codeId, Authentication auth) {
-    return codeService.getGuesses(codeId, (User) auth.getPrincipal());
+  public Iterable<Guess> get(@PathVariable String codeKey, Authentication auth) {
+    return codeService.getGuesses(codeKey, (User) auth.getPrincipal());
   }
 
   @PostMapping(
       consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<Guess> post(@PathVariable UUID codeId, @RequestBody Guess guess, Authentication auth) {
+  public ResponseEntity<Guess> post(
+      @PathVariable String codeKey, @RequestBody Guess guess, Authentication auth) {
     return codeService
-        .processGuess(codeId, guess, (User) auth.getPrincipal())
+        .processGuess(codeKey, guess, (User) auth.getPrincipal())
         .map((updatedGuess) -> {
           URI location = WebMvcLinkBuilder
               .linkTo(
                   WebMvcLinkBuilder
                       .methodOn(GuessController.class)
-                      .get(codeId, updatedGuess.getId(), auth)
+                      .get(codeKey, updatedGuess.getKey(), auth)
               )
               .toUri();
           return ResponseEntity.created(location).body(updatedGuess);
@@ -52,10 +52,11 @@ public class GuessController {
         .orElseThrow();
   }
 
-  @GetMapping(value = "/{guessId}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public Guess get(@PathVariable UUID codeId, @PathVariable UUID guessId, Authentication auth) {
+  @GetMapping(value = "/{guessKey}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public Guess get(
+      @PathVariable String codeKey, @PathVariable String guessKey, Authentication auth) {
     return codeService
-        .get(codeId, guessId, (User) auth.getPrincipal())
+        .get(codeKey, guessKey, (User) auth.getPrincipal())
         .orElseThrow();
   }
 

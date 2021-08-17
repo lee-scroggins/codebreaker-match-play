@@ -40,23 +40,23 @@ public class MatchController {
         .linkTo(
             WebMvcLinkBuilder
                 .methodOn(MatchController.class)
-                .get(match.getId(), auth)
+                .get(match.getKey(), auth)
         )
         .toUri();
     return ResponseEntity.created(location).body(match);
   }
 
-  @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public Match get(@PathVariable UUID id, Authentication auth) {
+  @GetMapping(value = "/{key}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public Match get(@PathVariable String key, Authentication auth) {
     return service
-        .get(id)
+        .get(key)
         .orElseThrow();
   }
 
-  @DeleteMapping(value = "/{id}")
+  @DeleteMapping(value = "/{key}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void delete(@PathVariable UUID id, Authentication auth) {
-    service.delete(id, (User) auth.getPrincipal());
+  public void delete(@PathVariable String key, Authentication auth) {
+    service.delete(key, (User) auth.getPrincipal());
   }
 
 }

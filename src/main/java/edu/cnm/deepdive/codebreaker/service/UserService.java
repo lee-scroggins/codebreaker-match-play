@@ -28,6 +28,10 @@ public class UserService implements Converter<Jwt, UsernamePasswordAuthenticatio
     return repository.findById(id);
   }
 
+  public Optional<User> get(String key) {
+    return repository.findByKey(key);
+  }
+
   public User save(User user) {
     return repository.save(user);
   }

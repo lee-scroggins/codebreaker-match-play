@@ -3,11 +3,14 @@ package edu.cnm.deepdive.codebreaker.model.dao;
 import edu.cnm.deepdive.codebreaker.model.entity.Match;
 import edu.cnm.deepdive.codebreaker.model.entity.User;
 import java.util.Date;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MatchRepository extends JpaRepository<Match, UUID> {
+
+  Optional<Match> findByKey(String key);
 
   Stream<Match> findAllByEndingAfterOrderByEndingAsc(Date cutoff);
 

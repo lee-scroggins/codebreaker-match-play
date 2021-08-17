@@ -2,12 +2,15 @@ package edu.cnm.deepdive.codebreaker.model.dao;
 
 import edu.cnm.deepdive.codebreaker.model.entity.Code;
 import edu.cnm.deepdive.codebreaker.model.entity.User;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface CodeRepository extends JpaRepository<Code, UUID> {
+
+  Optional<Code> findByKey(String key);
 
   Stream<Code> findAllByUserOrderByCreatedDesc(User user);
 
